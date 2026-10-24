@@ -34,12 +34,18 @@ def check_backend() -> str:
 
 
 def model() -> ChatOpenAI:
-    """Return the model named in MODEL_NAME, or GPT-6 Luna by default."""
+    """Return the model named in MODEL_NAME, or GPT-6 Luna by default.
+
+    MODEL_BASE_URL points at another OpenAI-compatible server, such as Ollama
+    on http://localhost:11434/v1, which needs no OpenRouter key.
+    """
     name = os.getenv("MODEL_NAME")
+    base_url = os.getenv("MODEL_BASE_URL")
+    key = "ollama" if base_url else os.environ["OPENROUTER_API_KEY"]
     return ChatOpenAI(
         model=name or DEFAULT_MODEL,
-        base_url=OPENROUTER_BASE_URL,
-        api_key=SecretStr(os.environ["OPENROUTER_API_KEY"]),
+        base_url=base_url or OPENROUTER_BASE_URL,
+        api_key=SecretStr(key),
         reasoning_effort=None if name else "low",
     )
 
